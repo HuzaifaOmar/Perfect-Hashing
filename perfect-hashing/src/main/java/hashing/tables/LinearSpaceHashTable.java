@@ -1,12 +1,17 @@
 package hashing.tables;
 
+import hashing.functions.IHashFunction;
+import hashing.functions.MatrixHashFunction;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class LinearSpaceHashTable implements IPerfectHashTable {
+    private IHashFunction hashFunction;    // Primary hash function
     private List<String> table;
     private int capacity;
     private int currentSize;
+    private final int DEFAULT_KEY_BITS = 280;
 
     @Override
     public int build(List<String> keys) {
@@ -16,7 +21,7 @@ public class LinearSpaceHashTable implements IPerfectHashTable {
             table.add(null); // Initialize with null values
         }
         currentSize = 0;
-
+        hashFunction = new MatrixHashFunction(capacity, DEFAULT_KEY_BITS);
         for (String key : keys) {
             insert(key);
         }
@@ -37,7 +42,7 @@ public class LinearSpaceHashTable implements IPerfectHashTable {
             return true;
         }
 
-        int hash = key.hashCode() % capacity;
+        int hash = hashFunction.hash(key);
         if (hash < 0) hash += capacity;
 
         while (table.get(hash) != null) {
@@ -81,7 +86,7 @@ public class LinearSpaceHashTable implements IPerfectHashTable {
     private int getIdx(String key) {
         if (capacity == 0) return -1;
 
-        int hash = key.hashCode() % capacity;
+        int hash = hashFunction.hash(key);
         if (hash < 0) hash += capacity;
 
         int startHash = hash; // Remember where we started
