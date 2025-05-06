@@ -5,27 +5,38 @@ import hashing.tables.LinearSpaceHashTable;
 import hashing.tables.QuadraticSpaceHashTable;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class EnglishDictionary implements IDictionary {
     private IPerfectHashTable hashTable;
 
     public EnglishDictionary(String type) {
-        if (type.equalsIgnoreCase("quadratic")) hashTable = new QuadraticSpaceHashTable();
-        else if (type.equalsIgnoreCase("linear")) hashTable = new LinearSpaceHashTable();
-        else throw new IllegalArgumentException("Unknown hash table type: " + type);
+        if (type.equalsIgnoreCase("quadratic"))
+            hashTable = new QuadraticSpaceHashTable();
+        else if (type.equalsIgnoreCase("linear"))
+            hashTable = new LinearSpaceHashTable();
+        else
+            throw new IllegalArgumentException("Unknown hash table type: " + type);
     }
 
     /*
-     !
-     ! I DO NOT KNOW IF WORDS ARE KEY SENSITIVE OR NOT
-     !
+     * !
+     * ! I DO NOT KNOW IF WORDS ARE KEY SENSITIVE OR NOT
+     * !
      */
 
     @Override
+    public void build() {
+        List<String> keys = new ArrayList<>();
+        hashTable.build(keys);
+    }
+
+    @Override
     public boolean insert(String word) {
+        System.out.println("inserting: " + word);
         if (word == null || word.isEmpty()) {
             return false;
         }
@@ -55,8 +66,12 @@ public class EnglishDictionary implements IDictionary {
             String line;
             while ((line = reader.readLine()) != null) {
                 line = line.trim();
-                if (!line.isEmpty()) if (insert(line)) result[0]++;
-                else result[1]++;
+                System.out.println(line);
+                if (!line.isEmpty())
+                    if (insert(line))
+                        result[0]++;
+                    else
+                        result[1]++;
             }
         } catch (IOException e) {
             System.err.println("Error reading file: " + e.getMessage());
@@ -72,14 +87,18 @@ public class EnglishDictionary implements IDictionary {
             String line;
             while ((line = reader.readLine()) != null) {
                 line = line.trim();
-                if (!line.isEmpty()) if (delete(line)) result[0]++;
-                else result[1]++;
+                if (!line.isEmpty())
+                    if (delete(line))
+                        result[0]++;
+                    else
+                        result[1]++;
             }
         } catch (IOException e) {
             System.err.println("Error reading file: " + e.getMessage());
             throw new RuntimeException(e);
         }
-        return result;    }
+        return result;
+    }
 
     @Override
     public int size() {

@@ -2,6 +2,8 @@ package dictionary;
 
 public interface IDictionary {
 
+    void build();
+
     boolean insert(String word);
 
     boolean delete(String word);
@@ -9,7 +11,8 @@ public interface IDictionary {
     boolean search(String word);
 
     /**
-     * @return int[2] array with [0]=number of words inserted, [1]=number of duplicates
+     * @return int[2] array with [0]=number of words inserted, [1]=number of
+     *         duplicates
      */
     int[] batchInsert(String filePath);
 
