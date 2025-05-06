@@ -2,7 +2,6 @@ package cli;
 
 import dictionary.EnglishDictionary;
 
-import java.io.IOException;
 import java.util.Scanner;
 
 /**
