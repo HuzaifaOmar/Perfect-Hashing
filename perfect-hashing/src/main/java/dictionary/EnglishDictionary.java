@@ -36,7 +36,6 @@ public class EnglishDictionary implements IDictionary {
 
     @Override
     public boolean insert(String word) {
-        System.out.println("inserting: " + word);
         if (word == null || word.isEmpty()) {
             return false;
         }
@@ -66,7 +65,6 @@ public class EnglishDictionary implements IDictionary {
             String line;
             while ((line = reader.readLine()) != null) {
                 line = line.trim();
-                System.out.println(line);
                 if (!line.isEmpty())
                     if (insert(line))
                         result[0]++;
