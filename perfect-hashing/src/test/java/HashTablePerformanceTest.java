@@ -29,7 +29,7 @@ public class HashTablePerformanceTest {
     public void testBuildTimeAndRebuildCount() {
         System.out.println("\n=== Build Time and Rebuild Attempts Test ===");
         System.out.printf("%-10s | %-25s | %-25s | %-20s | %-20s%n",
-                "Size", "Quadratic Build Time (ms)", "Linear Build Time (ms)",
+                "Size", "Quadratic Time (ms)", "Linear Time (ms)",
                 "Quadratic Rebuilds", "Linear Rebuilds");
         System.out.println("-".repeat(100));
 
