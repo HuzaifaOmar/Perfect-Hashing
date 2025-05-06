@@ -62,8 +62,8 @@ public class HashTablePerformanceTest {
     @Test
     public void testSpaceConsumption(){
         System.out.println("\n=== Space Consumption Test ===");
-        System.out.printf("%-10s | %-25s | %-25s | %-20s%n",
-                "Size", "Quadratic Space", "Linear Space", "Space Ratio (Q/L)");
+        System.out.printf("%-10s | %-25s | %-25s%n",
+                "Size", "Quadratic Space", "Linear Space");
         System.out.println("-".repeat(85));
 
         for (int size : DATASET_SIZES) {
@@ -77,8 +77,8 @@ public class HashTablePerformanceTest {
             linearHashTable.build(data);
             int linearSpace = linearHashTable.getSpace();
 
-            System.out.printf("%-10d | %-25d | %-25d | %-20.2f%n",
-                    size, quadraticSpace, linearSpace, (double) quadraticSpace / linearSpace);
+            System.out.printf("%-10d | %-25d | %-25d%n",
+                    size, quadraticSpace, linearSpace);
         }
     }
 }
