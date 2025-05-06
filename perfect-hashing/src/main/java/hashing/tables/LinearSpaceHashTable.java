@@ -1,81 +1,172 @@
 package hashing.tables;
 
-import hashing.functions.IHashFunction;
-import hashing.functions.MatrixHashFunction;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import hashing.functions.IHashFunction;
+import hashing.functions.MatrixHashFunction;
+
 public class LinearSpaceHashTable implements IPerfectHashTable {
-    private IHashFunction hashFunction;    // Primary hash function
-    private List<String> table;
+
+    private IHashFunction primaryHashFunction;
+    private Bucket[] buckets;
     private int capacity;
     private int currentSize;
-    private final int DEFAULT_KEY_BITS = 280;
+    private int rebuildAttempts;
+    private static final int DEFAULT_KEY_BITS = 128;
+
+    public class Bucket {
+        IHashFunction hashFunction;
+        String[] table;
+        int size;
+        List<String> keys;
+
+        Bucket(int expectedSize) {
+            this.size = expectedSize * expectedSize;
+            this.keys = new ArrayList<>();
+            this.table = new String[Math.max(1, size)];
+        }
+
+        boolean build() {
+            if (keys.isEmpty())
+                return true;
+
+            boolean success = false;
+            while (!success) {
+                hashFunction = new MatrixHashFunction(size, DEFAULT_KEY_BITS);
+                table = new String[size];
+                success = true;
+
+                for (String key : keys) {
+                    int index = Math.abs(hashFunction.hash(key));
+                    if (table[index] != null) {
+                        success = false;
+                        break;
+                    }
+                    table[index] = key;
+                }
+            }
+            return true;
+        }
+
+        boolean contains(String key) {
+            if (keys.isEmpty() || key == null)
+                return false;
+            int index = Math.abs(hashFunction.hash(key));
+            return key.equals(table[index]);
+        }
+
+    }
 
     @Override
     public int build(List<String> keys) {
-        capacity = keys.size() * 2; // Example: double the size of keys for simplicity
-        table = new ArrayList<>();
-        for (int i = 0; i < capacity; i++) {
-            table.add(null); // Initialize with null values
+        if (keys == null) {
+            throw new IllegalArgumentException("Keys cannot be null");
         }
-        currentSize = 0;
-        hashFunction = new MatrixHashFunction(capacity, DEFAULT_KEY_BITS);
-        for (String key : keys) {
-            insert(key);
+        this.capacity = Math.max(1, keys.size());
+        this.buckets = new Bucket[capacity];
+        this.rebuildAttempts = 0;
+        this.currentSize = 0;
+
+        boolean success = false;
+        while (!success) {
+            success = true;
+            rebuildAttempts++;
+
+            // Initialize temporary buckets for key distribution
+            List<List<String>> tempBuckets = new ArrayList<>(capacity);
+            for (int i = 0; i < capacity; i++) {
+                tempBuckets.add(new ArrayList<>());
+            }
+
+            primaryHashFunction = new MatrixHashFunction(capacity, DEFAULT_KEY_BITS);
+
+            // Distribute keys to buckets
+            for (String key : keys) {
+                int bucketIndex = Math.abs(primaryHashFunction.hash(key));
+                tempBuckets.get(bucketIndex).add(key);
+            }
+
+            // Build each bucket
+            for (int i = 0; i < capacity; i++) {
+                List<String> bucketKeys = tempBuckets.get(i);
+                buckets[i] = new Bucket(bucketKeys.size());
+                buckets[i].keys.addAll(bucketKeys);
+
+                if (!buckets[i].build()) {
+                    success = false;
+                    break;
+                }
+            }
         }
-        return capacity;
+
+        currentSize = keys.size();
+        return getSpace();
     }
 
     @Override
     public boolean insert(String key) {
-        if (currentSize >= capacity) {
-            List<String> currentKeys = new ArrayList<>();
-            for (String k : table) {
-                if (k != null) {
-                    currentKeys.add(k);
+        if (key == null) {
+            throw new IllegalArgumentException("Key cannot be null");
+        }
+
+        if (search(key)) {
+            return false; // Key already exists
+        }
+
+        List<String> allKeys = new ArrayList<>();
+        for (Bucket bucket : buckets) {
+            allKeys.addAll(bucket.keys);
+        }
+        allKeys.add(key);
+
+        build(allKeys);
+        return true;
+    }
+
+    @Override
+    public boolean delete(String key) {
+        if (key == null) {
+            throw new IllegalArgumentException("Key cannot be null");
+        }
+        List<String> allKeys = new ArrayList<>();
+        boolean found = false;
+
+        for (Bucket bucket : buckets) {
+            for (String k : bucket.keys) {
+                if (k.equals(key)) {
+                    found = true;
+                } else {
+                    allKeys.add(k);
                 }
             }
-            currentKeys.add(key); // Add the new key to the list
-            build(currentKeys); // Rebuild the table with the updated list of keys
-            return true;
         }
 
-        int hash = hashFunction.hash(key);
-        if (hash < 0) hash += capacity;
-
-        while (table.get(hash) != null) {
-            if (table.get(hash).equals(key)) {
-                return false; // Key already exists
-            }
-            hash = (hash + 1) % capacity; // Linear probing
+        if (!found) {
+            return false; // Key not found
         }
 
-        table.set(hash, key);
-        currentSize++;
+        build(allKeys);
         return true;
     }
 
     @Override
     public boolean search(String key) {
-        return getIdx(key) != -1;
-    }
-
-    @Override
-    public boolean delete(String key) {
-        int idx = getIdx(key);
-        if (idx != -1) {
-            table.set(idx, null);
-            currentSize--;
-            return true;
+        if (key == null || capacity == 0) {
+            return false;
         }
-        return false;
+
+        int bucketIndex = Math.abs(primaryHashFunction.hash(key));
+        return buckets[bucketIndex].contains(key);
     }
 
     @Override
     public int getSpace() {
-        return capacity;
+        int totalSpace = capacity;
+        for (Bucket bucket : buckets) {
+            totalSpace += bucket.size;
+        }
+        return totalSpace;
     }
 
     @Override
@@ -83,21 +174,8 @@ public class LinearSpaceHashTable implements IPerfectHashTable {
         return currentSize;
     }
 
-    private int getIdx(String key) {
-        if (capacity == 0) return -1;
-
-        int hash = hashFunction.hash(key);
-        if (hash < 0) hash += capacity;
-
-        int startHash = hash; // Remember where we started
-
-        do {
-            if (table.get(hash) != null && table.get(hash).equals(key)) {
-                return hash;
-            }
-            hash = (hash + 1) % capacity; // Linear probing
-        } while (hash != startHash); // Stop when we've checked the entire table
-
-        return -1; // Key not found
+    public int getRebuildAttempts() {
+        return rebuildAttempts;
     }
+
 }
