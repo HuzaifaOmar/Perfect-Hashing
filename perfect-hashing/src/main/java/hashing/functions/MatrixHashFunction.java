@@ -16,7 +16,7 @@ public class MatrixHashFunction implements IHashFunction {
     private final int keyBits; // u (number of bits in key)
 
     public MatrixHashFunction(int tableSize, int keyBits) {
-        this.tableSize = nextPowerOfTwo(tableSize);
+        this.tableSize = tableSize;
         this.keyBits = keyBits;
         this.numBits = Integer.SIZE - Integer.numberOfLeadingZeros(this.tableSize - 1);
         this.matrix = new int[numBits][keyBits];
@@ -40,7 +40,7 @@ public class MatrixHashFunction implements IHashFunction {
         int hash = 0;
         for (int i = 0; i < numBits; i++)
             hash |= (result[i] << i);
-        return hash;
+        return hash % tableSize;
     }
 
     @Override
@@ -58,10 +58,5 @@ public class MatrixHashFunction implements IHashFunction {
         }
 
         return result;
-    }
-
-    private int nextPowerOfTwo(int n) {
-        // 2 ^ ceil(log2(n))
-        return (int) Math.pow(2, Math.ceil(Math.log(n) / Math.log(2)));
     }
 }

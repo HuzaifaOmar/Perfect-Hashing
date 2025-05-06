@@ -1,7 +1,6 @@
-package hashing.functions;
+package hashing.tables;
 
 
-import hashing.tables.QuadraticSpaceHashTable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 

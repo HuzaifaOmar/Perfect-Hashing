@@ -19,11 +19,11 @@ public class QuadraticSpaceHashTable implements IPerfectHashTable{
     public int build(List<String> set) {
         this.size = set.size();
         int NUM_OF_BITS = 300;
+        hashFunction = new MatrixHashFunction(size * size, NUM_OF_BITS);
         table = new ArrayList<>(size * size);
         for(int i = 0; i < size * size; ++i){
             table.add("");
         }
-        hashFunction = new MatrixHashFunction(size, NUM_OF_BITS);
 
         for (int i = 0; i < size; ++i){
             int idx = hashFunction.hash(set.get(i));
