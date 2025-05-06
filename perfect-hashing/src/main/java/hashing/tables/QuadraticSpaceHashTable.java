@@ -6,7 +6,7 @@ import hashing.functions.MatrixHashFunction;
 import java.util.ArrayList;
 import java.util.List;
 
-public class QuadraticSpaceHashTable implements IPerfectHashTable{
+public class QuadraticSpaceHashTable implements IPerfectHashTable {
 
     private IHashFunction hashFunction;
     private List<String> table;
@@ -19,32 +19,45 @@ public class QuadraticSpaceHashTable implements IPerfectHashTable{
     public int build(List<String> set) {
         this.size = set.size();
         int NUM_OF_BITS = 300;
-        hashFunction = new MatrixHashFunction(size * size, NUM_OF_BITS);
-        table = new ArrayList<>(size * size);
-        for(int i = 0; i < size * size; ++i){
-            table.add("");
-        }
+        int tableSize = size * size;
+        int rebuildAttempts = -1;
+        boolean success = false;
+        while (!success) {
+            rebuildAttempts++;
+            table = new ArrayList<>(tableSize);
+            for (int i = 0; i < tableSize; i++)
+                table.add("");
 
-        for (int i = 0; i < size; ++i){
-            int idx = hashFunction.hash(set.get(i));
-            if(table.get(idx).isEmpty())
-                table.set(idx, set.get(i));
-            else
-                build(set);
+            hashFunction = new MatrixHashFunction(size * size, NUM_OF_BITS);
+
+            success = true;
+            for (String key : set) {
+                int idx = hashFunction.hash(key);
+                if (idx >= tableSize) {
+                    success = false;
+                    break;
+                }
+
+                if (table.get(idx).isEmpty()) table.set(idx, key);
+                else {
+                    success = false;
+                    break;
+                }
+            }
         }
-        return 0;
+        return rebuildAttempts;
     }
 
     @Override
     public boolean insert(String key) {
-        if( (float)(size +  1) / table.size() >= LOAD_FACTOR){
+        if ((float) (size + 1) / table.size() >= LOAD_FACTOR) {
             List<String> list = this.toList();
             list.add(key);
             build(list);
             return true;
         }
         int idx = hashFunction.hash(key);
-        while (!table.get(idx).isEmpty() || table.get(idx).equals(DELETED)){
+        while (!table.get(idx).isEmpty() || table.get(idx).equals(DELETED)) {
             idx = (idx + 1) % table.size();
         }
         table.set(idx, key);
@@ -55,8 +68,7 @@ public class QuadraticSpaceHashTable implements IPerfectHashTable{
     @Override
     public boolean delete(String key) {
         int idx = mySearch(key);
-        if(idx == -1)
-            return false;
+        if (idx == -1) return false;
         table.set(idx, DELETED);
         size -= 1;
         return true;
@@ -67,12 +79,12 @@ public class QuadraticSpaceHashTable implements IPerfectHashTable{
         return mySearch(key) != -1;
     }
 
-    public int mySearch(String key){
+    public int mySearch(String key) {
         int idx = hashFunction.hash(key);
         int stIdx = idx;
-        while(!table.get(idx).equals(key) && !table.get(idx).isEmpty()){
+        while (!table.get(idx).equals(key) && !table.get(idx).isEmpty()) {
             idx = (idx + 1) % table.size();
-            if(idx == stIdx) {
+            if (idx == stIdx) {
                 build(this.toList());
                 return -1;
             }
@@ -90,11 +102,10 @@ public class QuadraticSpaceHashTable implements IPerfectHashTable{
         return this.size;
     }
 
-    public List<String> toList(){
+    public List<String> toList() {
         List<String> list = new ArrayList<>();
-        for(String s : table){
-            if(!s.isEmpty())
-                    list.add(s);
+        for (String s : table) {
+            if (!s.isEmpty()) list.add(s);
         }
         return list;
     }

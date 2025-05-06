@@ -101,7 +101,7 @@ public class LinearSpaceHashTable implements IPerfectHashTable {
         }
 
         currentSize = keys.size();
-        return getSpace();
+        return rebuildAttempts;
     }
 
     @Override
