@@ -4,6 +4,7 @@ import hashing.functions.IHashFunction;
 import hashing.functions.MatrixHashFunction;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class QuadraticSpaceHashTable implements IPerfectHashTable {
@@ -50,13 +51,16 @@ public class QuadraticSpaceHashTable implements IPerfectHashTable {
 
     @Override
     public boolean insert(String key) {
+        int idx = mySearch(key);
+        if(idx != -1)
+            return false;
         if ((float) (size + 1) / table.size() >= LOAD_FACTOR) {
             List<String> list = this.toList();
             list.add(key);
             build(list);
             return true;
         }
-        int idx = hashFunction.hash(key);
+        idx = hashFunction.hash(key);
         while (!table.get(idx).isEmpty() || table.get(idx).equals(DELETED)) {
             idx = (idx + 1) % table.size();
         }
@@ -89,7 +93,9 @@ public class QuadraticSpaceHashTable implements IPerfectHashTable {
                 return -1;
             }
         }
-        return idx;
+        if(!table.get(idx).isEmpty())
+            return idx;
+        return -1;
     }
 
     @Override
@@ -109,4 +115,13 @@ public class QuadraticSpaceHashTable implements IPerfectHashTable {
         }
         return list;
     }
+
+    // public static void main(String[] args) {
+    //         List<String> input = Arrays.asList("x", "y", "z");
+    //         QuadraticSpaceHashTable hashTable = new QuadraticSpaceHashTable();
+    //         hashTable.build(input);
+    //         hashTable.search("y");
+    //         boolean b = hashTable.delete("y");
+    //         boolean a = hashTable.search("y");
+    // }
 }
