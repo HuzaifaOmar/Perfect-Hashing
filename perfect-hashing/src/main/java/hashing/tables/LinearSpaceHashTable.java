@@ -32,7 +32,11 @@ public class LinearSpaceHashTable implements IPerfectHashTable {
                 return true;
 
             boolean success = false;
-            while (!success) {
+            int attempts = 0;
+            int maxAttempts = 100; // Prevent infinite loops
+
+            while (!success && attempts < maxAttempts) {
+                attempts++;
                 hashFunction = new MatrixHashFunction(size, DEFAULT_KEY_BITS);
                 table = new String[size];
                 success = true;
@@ -46,7 +50,7 @@ public class LinearSpaceHashTable implements IPerfectHashTable {
                     table[index] = key;
                 }
             }
-            return true;
+            return success;
         }
 
         boolean contains(String key) {
@@ -56,6 +60,16 @@ public class LinearSpaceHashTable implements IPerfectHashTable {
             return key.equals(table[index]);
         }
 
+        // Check if inserting a key would cause a collision
+        boolean wouldCollide(String key) {
+            if (keys.isEmpty() || key == null)
+                return false;
+            if (keys.contains(key))
+                return false; // Not a collision if the key already exists
+
+            int index = Math.abs(hashFunction.hash(key));
+            return table[index] != null;
+        }
     }
 
     @Override
@@ -63,7 +77,8 @@ public class LinearSpaceHashTable implements IPerfectHashTable {
         if (keys == null) {
             throw new IllegalArgumentException("Keys cannot be null");
         }
-        this.capacity = Math.max(1, keys.size());
+        // Use 2n capacity instead of n
+        this.capacity = Math.max(1, keys.size() * 2);
         this.buckets = new Bucket[capacity];
         this.rebuildAttempts = 0;
         this.currentSize = 0;
@@ -114,13 +129,32 @@ public class LinearSpaceHashTable implements IPerfectHashTable {
             return false; // Key already exists
         }
 
-        List<String> allKeys = new ArrayList<>();
-        for (Bucket bucket : buckets) {
-            allKeys.addAll(bucket.keys);
-        }
-        allKeys.add(key);
+        // First check if key would cause collision in existing structure
+        int bucketIndex = Math.abs(primaryHashFunction.hash(key));
 
-        build(allKeys);
+        // Check if the bucket has a valid hash function
+        if (buckets[bucketIndex].hashFunction == null) {
+            // Initialize the bucket's hash function if needed
+            buckets[bucketIndex].build();
+        }
+
+        // Check for collision
+        if (buckets[bucketIndex].keys.isEmpty() || buckets[bucketIndex].wouldCollide(key)) {
+            // Collision detected or empty bucket needs to be rebuilt, need to rebuild with
+            // new key
+            List<String> allKeys = new ArrayList<>();
+            for (Bucket bucket : buckets) {
+                allKeys.addAll(bucket.keys);
+            }
+            allKeys.add(key);
+            build(allKeys);
+        } else {
+            // No collision, can directly insert
+            buckets[bucketIndex].keys.add(key);
+            int index = Math.abs(buckets[bucketIndex].hashFunction.hash(key));
+            buckets[bucketIndex].table[index] = key;
+            currentSize++;
+        }
         return true;
     }
 
