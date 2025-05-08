@@ -47,6 +47,7 @@ public class LinearSpaceHashTableTest {
     @Test
     public void testInsertDelete() {
         IPerfectHashTable table = new LinearSpaceHashTable();
+        table.build(new ArrayList<>());
         assertTrue(table.insert("apple"));
         assertTrue(table.insert("banana"));
         assertEquals(2, table.size());

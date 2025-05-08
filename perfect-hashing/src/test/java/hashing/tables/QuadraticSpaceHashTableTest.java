@@ -39,13 +39,13 @@ public class QuadraticSpaceHashTableTest {
 
     @org.junit.jupiter.api.Test
     public void testDelete() {
+
         List<String> input = Arrays.asList("x", "y", "z");
         hashTable.build(input);
         Assertions.assertTrue(hashTable.search("y"));
         Assertions.assertTrue(hashTable.delete("y"));
         Assertions.assertFalse(hashTable.search("y"));
     }
-
     @org.junit.jupiter.api.Test
     public void testRebuildAfterInsertOverLoadFactor() {
         List<String> input = Arrays.asList("key1", "key2", "key3");
