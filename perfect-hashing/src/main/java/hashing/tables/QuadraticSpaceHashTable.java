@@ -4,7 +4,6 @@ import hashing.functions.IHashFunction;
 import hashing.functions.MatrixHashFunction;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class QuadraticSpaceHashTable implements IPerfectHashTable {
@@ -18,7 +17,7 @@ public class QuadraticSpaceHashTable implements IPerfectHashTable {
 
     @Override
     public int build(List<String> set) {
-        this.size = set.size();
+        this.size = Math.max(set.size(), 1);
         int NUM_OF_BITS = 300;
         int tableSize = size * size;
         int rebuildAttempts = -1;
@@ -53,7 +52,7 @@ public class QuadraticSpaceHashTable implements IPerfectHashTable {
     public boolean insert(String key) {
         int idx = mySearch(key);
         if(idx != -1)
-            return false;
+            return false;        
         if ((float) (size + 1) / table.size() >= LOAD_FACTOR) {
             List<String> list = this.toList();
             list.add(key);
