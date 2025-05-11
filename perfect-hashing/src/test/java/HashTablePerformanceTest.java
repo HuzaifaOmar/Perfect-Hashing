@@ -81,4 +81,52 @@ public class HashTablePerformanceTest {
                     size, quadraticSpace, linearSpace);
         }
     }
+
+    @Test
+    public void testLinearHashTableWithLargeDataset() {
+        System.out.println("\n=== Linear Space Hash Table Performance Test (10^6 elements) ===");
+        final int SIZE = 1_000_000;
+
+        System.out.println("Generating dataset of " + SIZE + " elements...");
+        long startGeneration = System.currentTimeMillis();
+        List<String> dataset = generateDataset(SIZE);
+        long endGeneration = System.currentTimeMillis();
+        System.out.printf("Dataset generation time: %.2f seconds%n",
+                (endGeneration - startGeneration) / 1000.0);
+
+        IPerfectHashTable hashTable = new LinearSpaceHashTable();
+        System.out.println("Building hash table...");
+        long startBuild = System.currentTimeMillis();
+        int rebuilds = hashTable.build(dataset);
+        long endBuild = System.currentTimeMillis();
+        System.out.printf("Build time: %.2f seconds%n", (endBuild - startBuild) / 1000.0);
+
+        System.out.println("Hash table size: " + hashTable.size());
+        System.out.println("Hash table space: " + hashTable.getSpace());
+    }
+
+    @Test
+    public void testQuadraticHashTableWithLargeDataset() {
+        System.out.println("\n=== Quadratic Space Hash Table Performance Test (1000 elements) ===");
+        final int SIZE = 1000;
+
+        System.out.println("Generating dataset of " + SIZE + " elements...");
+        long startGeneration = System.currentTimeMillis();
+        List<String> dataset = generateDataset(SIZE);
+        long endGeneration = System.currentTimeMillis();
+        System.out.printf("Dataset generation time: %.2f seconds%n",
+                (endGeneration - startGeneration) / 1000.0);
+
+        IPerfectHashTable hashTable = new QuadraticSpaceHashTable();
+        System.out.println("Building hash table...");
+        long startBuild = System.currentTimeMillis();
+        int rebuilds = hashTable.build(dataset);
+        long endBuild = System.currentTimeMillis();
+        System.out.printf("Build time: %.2f seconds%n", (endBuild - startBuild) / 1000.0);
+
+        System.out.println("Hash table size: " + hashTable.size());
+        System.out.println("Hash table space: " + hashTable.getSpace());
+    }
+
+
 }
