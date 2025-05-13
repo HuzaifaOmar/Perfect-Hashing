@@ -9,7 +9,7 @@ import java.util.Random;
 
 public class HashTablePerformanceTest {
 
-    private static final int[] DATASET_SIZES = {10, 100, 500};
+    private static final int[] DATASET_SIZES = { 10, 100, 500 };
     private static final int ITERATIONS = 20;
 
     private List<String> generateDataset(int size) {
@@ -17,7 +17,7 @@ public class HashTablePerformanceTest {
         Random random = new Random();
         for (int i = 0; i < size; i++) {
             StringBuilder sb = new StringBuilder();
-            int length = random.nextInt(10) + 5; //length of string [5, 14]
+            int length = random.nextInt(10) + 5; // length of string [5, 14]
             for (int j = 0; j < length; j++)
                 sb.append((char) (random.nextInt(26) + 'a'));
             result.add(sb.toString());
@@ -33,7 +33,7 @@ public class HashTablePerformanceTest {
                 "Quadratic Rebuilds", "Linear Rebuilds");
         System.out.println("-".repeat(100));
 
-        for (int size : DATASET_SIZES){
+        for (int size : DATASET_SIZES) {
             long quadraticBuildTime = 0;
             long linearBuildTime = 0;
             int quadraticRebuilds = 0;
@@ -60,7 +60,7 @@ public class HashTablePerformanceTest {
     }
 
     @Test
-    public void testSpaceConsumption(){
+    public void testSpaceConsumption() {
         System.out.println("\n=== Space Consumption Test ===");
         System.out.printf("%-10s | %-25s | %-25s%n",
                 "Size", "Quadratic Space", "Linear Space");
@@ -84,8 +84,8 @@ public class HashTablePerformanceTest {
 
     @Test
     public void testLinearHashTableWithLargeDataset() {
-        System.out.println("\n=== Linear Space Hash Table Performance Test (10^6 elements) ===");
-        final int SIZE = 1_000_000;
+        System.out.println("\n=== Linear Space Hash Table Performance Test (10000 elements) ===");
+        final int SIZE = 1_000_0;
 
         System.out.println("Generating dataset of " + SIZE + " elements...");
         long startGeneration = System.currentTimeMillis();
@@ -100,6 +100,7 @@ public class HashTablePerformanceTest {
         int rebuilds = hashTable.build(dataset);
         long endBuild = System.currentTimeMillis();
         System.out.printf("Build time: %.2f seconds%n", (endBuild - startBuild) / 1000.0);
+        System.out.printf("Rebuild attempts: %d%n", rebuilds);
 
         System.out.println("Hash table size: " + hashTable.size());
         System.out.println("Hash table space: " + hashTable.getSpace());
@@ -123,10 +124,10 @@ public class HashTablePerformanceTest {
         int rebuilds = hashTable.build(dataset);
         long endBuild = System.currentTimeMillis();
         System.out.printf("Build time: %.2f seconds%n", (endBuild - startBuild) / 1000.0);
+        System.out.printf("Rebuild attempts: %d%n", rebuilds);
 
         System.out.println("Hash table size: " + hashTable.size());
         System.out.println("Hash table space: " + hashTable.getSpace());
     }
-
 
 }
