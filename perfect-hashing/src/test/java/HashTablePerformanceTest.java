@@ -9,7 +9,7 @@ import java.util.Random;
 
 public class HashTablePerformanceTest {
 
-    private static final int[] DATASET_SIZES = { 10, 100, 500 };
+    private static final int[] DATASET_SIZES = { 10, 100, 500, 1000 };
     private static final int ITERATIONS = 20;
 
     private List<String> generateDataset(int size) {
@@ -29,8 +29,8 @@ public class HashTablePerformanceTest {
     public void testBuildTimeAndRebuildCount() {
         System.out.println("\n=== Build Time and Rebuild Attempts Test ===");
         System.out.printf("%-10s | %-25s | %-25s | %-20s | %-20s%n",
-                "Size", "Quadratic Time (ms)", "Linear Time (ms)",
-                "Quadratic Rebuilds", "Linear Rebuilds");
+                "Size", "Quadratic Time Average (ms)", "Linear Time Average (ms)",
+                "Quadratic Rebuilds Average", "Linear Rebuilds Average");
         System.out.println("-".repeat(100));
 
         for (int size : DATASET_SIZES) {
@@ -54,8 +54,10 @@ public class HashTablePerformanceTest {
             }
             double quadraticBuildTimeAvg = quadraticBuildTime / (double) ITERATIONS;
             double linearBuildTimeAvg = linearBuildTime / (double) ITERATIONS;
-            System.out.printf("%-10d | %-25.2f | %-25.2f | %-20d | %-20d%n",
-                    size, quadraticBuildTimeAvg, linearBuildTimeAvg, quadraticRebuilds, linearRebuilds);
+            double quadraticRebuildsAvg = (int) (quadraticRebuilds / (double) ITERATIONS);
+            double linearRebuildsAvg = (int) (linearRebuilds / (double) ITERATIONS);
+            System.out.printf("%-10d | %-25.2f | %-25.2f | %-25.2f | %-25.2f%n",
+                    size, quadraticBuildTimeAvg, linearBuildTimeAvg, quadraticRebuildsAvg, linearRebuildsAvg);
         }
     }
 

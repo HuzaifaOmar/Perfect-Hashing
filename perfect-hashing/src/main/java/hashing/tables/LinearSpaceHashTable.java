@@ -23,7 +23,7 @@ public class LinearSpaceHashTable implements IPerfectHashTable {
 
         this.capacity = keys.size();
         this.subTables = new QuadraticSpaceHashTable[capacity];
-        this.rebuildAttempts = 0;
+        this.rebuildAttempts = -1;
         this.currentSize = 0;
 
         boolean success = false;
